@@ -22,11 +22,6 @@ declare(strict_types=1);
 
 namespace Mazarini\BatchBundle\Reader\Database;
 
-// DoctrineReader requires doctrine/dbal package
-// Install with: composer require doctrine/dbal
-// Then uncomment the implementation below
-
-/*
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Result;
 use Mazarini\BatchBundle\Collection\DataCollection;
@@ -35,6 +30,84 @@ use Mazarini\BatchBundle\Contract\ReaderInterface;
 
 class DoctrineReader implements ReaderInterface
 {
-    // Implementation available when doctrine/dbal is installed
+    private DataCollection $dataCollection;
+    /** @var array<string> */
+    private array $fieldNames = [];
+    private ?Result $result   = null;
+
+    public function __construct(
+        private Connection $connection,
+        private string $sql,
+        /**
+         * @var array<string, mixed>
+         */
+        private array $parameters = []
+    ) {
+    }
+
+    public function configure(DataCollection $dataCollection, array $fieldNames): static
+    {
+        $this->dataCollection = $dataCollection;
+        $this->fieldNames     = $fieldNames;
+
+        return $this;
+    }
+
+    public function open(): static
+    {
+        $this->result = $this->connection->executeQuery($this->sql, $this->parameters);
+
+        return $this;
+    }
+
+    public function read(): bool
+    {
+        if ($this->result === null) {
+            throw new \RuntimeException('Reader not opened');
+        }
+
+        $row = $this->result->fetchAssociative();
+        if ($row === false) {
+            return false;
+        }
+
+        foreach ($this->fieldNames as $fieldName) {
+            $value       = $row[$fieldName] ?? '';
+            $stringValue = match (true) {
+                \is_string($value) => $value,
+                \is_scalar($value) => (string) $value,
+                default            => ''
+            };
+            $this->dataCollection[$fieldName]->setRawValue($stringValue);
+        }
+
+        return true;
+    }
+
+    public function close(): static
+    {
+        if ($this->result !== null) {
+            $this->result->free();
+            $this->result = null;
+        }
+
+        return $this;
+    }
+
+    public function getRecords(): \Generator
+    {
+        $this->open();
+
+        try {
+            while ($this->read()) {
+                $recordData = [];
+                foreach ($this->fieldNames as $fieldName) {
+                    $recordData[$fieldName] = clone $this->dataCollection[$fieldName];
+                }
+                yield new Record($recordData);
+            }
+        } finally {
+            $this->close();
+        }
+    }
 }
-*/
