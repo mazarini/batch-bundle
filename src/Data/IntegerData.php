@@ -73,7 +73,7 @@ class IntegerData extends DataAbstract
             return $this->setNull();
         }
 
-        $trimmed = \mb_ltrim(\mb_trim($rawValue), '0');
+        $trimmed    = \mb_ltrim(\mb_trim($rawValue), '0');
         $cleanValue = $trimmed !== '' ? $trimmed : '0';
         $intValue   = $this->options === []
             ? \filter_var($cleanValue, $this->filter)
