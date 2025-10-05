@@ -24,9 +24,9 @@ namespace App\Command;
 
 use App\Reader\File\PersonFixedReader;
 use Mazarini\BatchBundle\Collection\DataCollection;
+use Mazarini\BatchBundle\Data\DecimalData;
 use Mazarini\BatchBundle\Data\IntegerData;
 use Mazarini\BatchBundle\Data\StringData;
-use Mazarini\BatchBundle\Data\DecimalData;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -56,22 +56,22 @@ class ReadPersonsFixedCommand extends Command
 
         // Configure reader
         $filePath = __DIR__ . '/../../../var/data/persons.fixed';
-        $reader = new PersonFixedReader($filePath);
+        $reader   = new PersonFixedReader($filePath);
         $reader->configure($dataCollection, ['id', 'first_name', 'last_name', 'email', 'age', 'salary']);
 
         $io->section('Person Records:');
 
         $count = 0;
         foreach ($reader->getRecords() as $record) {
-            $id = $record['id']->getAsInteger();
+            $id        = $record['id']->getAsInteger();
             $firstName = $record['first_name']->getAsString();
-            $lastName = $record['last_name']->getAsString();
-            $email = $record['email']->getAsString();
-            $age = $record['age']->getAsInteger();
-            $salary = $record['salary']->getAsDecimal();
+            $lastName  = $record['last_name']->getAsString();
+            $email     = $record['email']->getAsString();
+            $age       = $record['age']->getAsInteger();
+            $salary    = $record['salary']->getAsDecimal();
 
-            $io->writeln("#{$id}: {$firstName} {$lastName} ({$email}) - Age: {$age} - Salary: €" . number_format($salary, 2));
-            $count++;
+            $io->writeln("#{$id}: {$firstName} {$lastName} ({$email}) - Age: {$age} - Salary: €" . \number_format($salary, 2));
+            ++$count;
         }
 
         $io->success("Successfully read {$count} person records from fixed-width file!");

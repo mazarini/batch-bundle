@@ -26,7 +26,7 @@ use Mazarini\BatchBundle\Reader\File\FixedReader;
 
 /**
  * Fixed-width reader for person data with predefined structure.
- * Expected format: ID(5) + FirstName(20) + LastName(20) + Email(30) + Age(3) + Salary(10)
+ * Expected format: ID(5) + FirstName(20) + LastName(20) + Email(30) + Age(3) + Salary(10).
  */
 class PersonFixedReader extends FixedReader
 {
