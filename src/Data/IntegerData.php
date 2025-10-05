@@ -73,9 +73,10 @@ class IntegerData extends DataAbstract
             return $this->setNull();
         }
 
+        $cleanValue = \ltrim(\trim($rawValue), '0') ?: '0';
         $intValue = $this->options === []
-            ? \filter_var($rawValue, $this->filter)
-            : \filter_var($rawValue, $this->filter, $this->options);
+            ? \filter_var($cleanValue, $this->filter)
+            : \filter_var($cleanValue, $this->filter, $this->options);
         if ($intValue === false) {
             throw new \InvalidArgumentException("Cannot convert '{$rawValue}' to integer");
         }
