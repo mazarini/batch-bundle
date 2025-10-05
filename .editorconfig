@@ -1,0 +1,40 @@
+# editorconfig.org
+root = true
+
+# Default settings for all files
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# PHP files (Symfony convention: 4 spaces)
+[*.php]
+indent_size = 4
+indent_style = space
+
+# YAML (Symfony convention: 2 spaces)
+[{*.yaml,*.yml}]
+indent_size = 2
+indent_style = space
+
+# Docker Compose files (YAML with 2 spaces)
+[{compose.yaml,compose.*.yaml}]
+indent_size = 2
+indent_style = space
+
+# Markdown (avoid removing trailing spaces, used for line breaks)
+[*.md]
+trim_trailing_whitespace = false
+
+# JSON (2 spaces is common, esp. for composer.json & package.json)
+[*.json]
+indent_size = 4
+indent_style = space
+
+# XML files (Symfony configs often indented with 4 spaces)
+[*.xml]
+indent_size = 4
+indent_style = space
