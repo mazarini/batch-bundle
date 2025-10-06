@@ -58,7 +58,7 @@ class ReadPersonsDoctrineCommand extends Command
         $dataCollection->add('salary', new DecimalData());
 
         // Create Doctrine DBAL connection
-        $dbPath     = __DIR__ . '/../../../var/data/persons.db';
+        $dbPath     = __DIR__ . '/../../../var/data/input/persons.db';
         $connection = DriverManager::getConnection([
             'driver' => 'pdo_sqlite',
             'path'   => $dbPath,

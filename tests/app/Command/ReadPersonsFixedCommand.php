@@ -55,7 +55,7 @@ class ReadPersonsFixedCommand extends Command
         $dataCollection->add('salary', new DecimalData());
 
         // Configure reader
-        $filePath = __DIR__ . '/../../../var/data/persons.fixed';
+        $filePath = __DIR__ . '/../../../var/data/input/persons.fixed';
         $reader   = new PersonFixedReader($filePath);
         $reader->configure($dataCollection, ['id', 'first_name', 'last_name', 'email', 'age', 'salary']);
 

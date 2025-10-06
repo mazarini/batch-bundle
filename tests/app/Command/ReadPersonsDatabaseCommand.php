@@ -57,7 +57,7 @@ class ReadPersonsDatabaseCommand extends Command
         $dataCollection->add('salary', new DecimalData());
 
         // Create PDO connection
-        $dbPath = __DIR__ . '/../../../var/data/persons.db';
+        $dbPath = __DIR__ . '/../../../var/data/input/persons.db';
         $pdo    = new \PDO("sqlite:$dbPath");
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 

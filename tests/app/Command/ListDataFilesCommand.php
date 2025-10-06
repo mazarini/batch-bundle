@@ -53,7 +53,7 @@ class ListDataFilesCommand extends Command
         $dataCollection->add('is_file', new BooleanData());
 
         // Configure reader
-        $directoryPath = __DIR__ . '/../../../var/data';
+        $directoryPath = __DIR__ . '/../../../var/data/input';
         $reader        = new DirectoryReader($directoryPath);
         $reader->configure($dataCollection, ['filename', 'size', 'modified', 'is_file']);
 

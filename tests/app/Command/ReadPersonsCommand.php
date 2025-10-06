@@ -67,7 +67,7 @@ class ReadPersonsCommand extends Command
         $dataCollection['is_active']->setFormat('%d');
         $dataCollection['salary']->setFormat('%.2f');
         // Configure reader
-        $reader = new PersonCsvReader('var/data/persons.csv');
+        $reader = new PersonCsvReader('var/data/input/persons.csv');
         $reader->configure($dataCollection, ['id', 'first_name', 'last_name', 'email', 'age', 'is_active', 'salary']);
 
         $io->section('Person Records:');
