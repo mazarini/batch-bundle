@@ -1,5 +1,7 @@
 /var/*
 !/var/data
+/var/data/output/*
+!var/data/output/.gitignore
 
 # Node.js dependencies
 /node_modules
