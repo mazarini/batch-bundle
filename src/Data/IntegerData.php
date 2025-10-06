@@ -25,6 +25,9 @@ namespace Mazarini\BatchBundle\Data;
 use Mazarini\BatchBundle\Enum\TypeEnum;
 
 /**
+ * Integer data type implementation with validation and range checking.
+ * Handles mainframe-style leading zeros removal.
+ *
  * @internal This class is internal to the BatchBundle
  */
 class IntegerData extends DataAbstract
@@ -36,6 +39,13 @@ class IntegerData extends DataAbstract
      */
     private array $options;
 
+    /**
+     * Initialize integer data with validation filter and optional range.
+     *
+     * @param int      $filter   PHP filter constant (default: FILTER_VALIDATE_INT)
+     * @param int|null $minRange Minimum allowed value
+     * @param int|null $maxRange Maximum allowed value
+     */
     public function __construct(int $filter = \FILTER_VALIDATE_INT, ?int $minRange = null, ?int $maxRange = null)
     {
         parent::__construct(TypeEnum::INTEGER);
@@ -53,6 +63,9 @@ class IntegerData extends DataAbstract
         }
     }
 
+    /**
+     * Reset the internal value by unsetting it.
+     */
     protected function resetValue(): static
     {
         unset($this->value);
@@ -60,34 +73,54 @@ class IntegerData extends DataAbstract
         return $this;
     }
 
+    /**
+     * Get the raw integer value with optional formatting.
+     *
+     * @return string Formatted integer value
+     */
     public function getRawValue(): string
     {
         return $this->formatScalarValue($this->value);
     }
 
-    public function setRawValue(?string $rawValue): static
+    /**
+     * Validate and convert string to integer.
+     *
+     * @param string $rawValue The raw string value to validate
+     *
+     * @throws \InvalidArgumentException If validation fails
+     */
+    protected function validateInteger(string $rawValue): int
     {
-        if ($rawValue === null) {
-            unset($this->value);
+        $cleanValue = \mb_ltrim(\mb_trim($rawValue), '0');
+        $cleanValue = $cleanValue !== '' ? $cleanValue : '0';
 
-            return $this->setNull();
-        }
+        $intValue = \filter_var($cleanValue, $this->filter, $this->options);
 
-        $trimmed    = \mb_ltrim(\mb_trim($rawValue), '0');
-        $cleanValue = $trimmed !== '' ? $trimmed : '0';
-        $intValue   = $this->options === []
-            ? \filter_var($cleanValue, $this->filter)
-            : \filter_var($cleanValue, $this->filter, $this->options);
         if ($intValue === false) {
             throw new \InvalidArgumentException("Cannot convert '{$rawValue}' to integer");
         }
 
-        $this->value    = $intValue;
-        $this->setNull(false);
-
-        return $this;
+        return $intValue;
     }
 
+    /**
+     * Set raw value by delegating to setAsIntegerOrNull.
+     *
+     * @param string|null $rawValue The raw string value or null
+     */
+    public function setRawValue(?string $rawValue): static
+    {
+        $value = $rawValue === null ? null : $this->validateInteger($rawValue);
+
+        return $this->setAsIntegerOrNull($value);
+    }
+
+    /**
+     * Get the integer value, throws exception if null.
+     *
+     * @throws \InvalidArgumentException If value is null
+     */
     public function getAsInteger(): int
     {
         if ($this->isNull()) {
@@ -97,11 +130,19 @@ class IntegerData extends DataAbstract
         return $this->value;
     }
 
+    /**
+     * Get the integer value or null if not set.
+     */
     public function getAsIntegerOrNull(): ?int
     {
         return $this->isNull() ? null : $this->value;
     }
 
+    /**
+     * Set integer value.
+     *
+     * @param int $value The integer value to set
+     */
     public function setAsInteger(int $value): static
     {
         $this->value    = $value;
@@ -110,6 +151,11 @@ class IntegerData extends DataAbstract
         return $this;
     }
 
+    /**
+     * Set integer value or null.
+     *
+     * @param int|null $value The integer value to set or null
+     */
     public function setAsIntegerOrNull(?int $value): static
     {
         if ($value === null) {
