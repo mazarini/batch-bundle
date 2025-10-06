@@ -80,6 +80,8 @@
         "lint": "vendor/bin/php-cs-fixer fix --dry-run --diff",
         "phpstan": "vendor/bin/phpstan analyse -c phpstan.dist.neon",
         "test": "vendor/bin/phpunit",
+        "cover": "vendor/bin/phpunit --coverage-html var/coverage",
+        "cover-text": "vendor/bin/phpunit --coverage-text",
         "dist-upgrade": [
             "composer update",
             "npm update",
@@ -101,6 +103,5 @@
             "allow-contrib": false,
             "require": "^7.3"
         }
-    },
-    "version": "dev-master"
+    }
 }

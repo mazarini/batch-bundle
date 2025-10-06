@@ -1,0 +1,36 @@
+#!/bin/bash
+
+echo "🔍 Running pre-commit checks..."
+
+# Detect OS and set composer command
+if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
+    COMPOSER="composer.bat"
+else
+    COMPOSER="composer"
+fi
+
+# Validate
+echo "✅ Running validate strict..."
+$COMPOSER validate --strict
+if [ $? -ne 0 ]; then
+    echo "❌ Validation failed!"
+    exit 1
+fi
+
+# PHP CS Fixer
+echo "🎨 Running PHP CS Fixer..."
+$COMPOSER lint
+if [ $? -ne 0 ]; then
+    echo "❌ Code style issues found!"
+    exit 1
+fi
+
+# PHPStan
+echo "🔬 Running PHPStan..."
+$COMPOSER phpstan
+if [ $? -ne 0 ]; then
+    echo "❌ PHPStan errors found!"
+    exit 1
+fi
+
+echo "✅ All checks passed!"
