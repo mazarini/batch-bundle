@@ -45,7 +45,7 @@ class DecimalData extends DataAbstract
 
     public function getRawValue(): string
     {
-        return $this->isNull() ? '' : $this->formatScalarValue($this->value);
+        return $this->formatScalarValue($this->value);
     }
 
     public function setRawValue(?string $rawValue): static
@@ -54,7 +54,9 @@ class DecimalData extends DataAbstract
             return $this->setNull();
         }
 
-        $floatValue = \filter_var($rawValue, \FILTER_VALIDATE_FLOAT);
+        $normalizedValue = \mb_trim($rawValue);
+
+        $floatValue = \filter_var($normalizedValue, \FILTER_VALIDATE_FLOAT, \FILTER_FLAG_ALLOW_THOUSAND | \FILTER_FLAG_ALLOW_SCIENTIFIC);
         if ($floatValue === false) {
             throw new \InvalidArgumentException("Cannot convert '{$rawValue}' to decimal");
         }
