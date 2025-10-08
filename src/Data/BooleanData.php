@@ -45,7 +45,7 @@ class BooleanData extends DataAbstract
 
     public function getRawValue(): string
     {
-        return $this->isNull() ? '' : $this->formatScalarValue($this->value ? '1' : '0');
+        return $this->isNull() ? ' ' : ($this->value ? '1' : '0');
     }
 
     public function setRawValue(?string $rawValue): static
