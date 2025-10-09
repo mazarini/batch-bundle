@@ -27,7 +27,7 @@ use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-class BooleanDataTest extends TestCase
+class T60_BooleanDataTest extends TestCase
 {
     private BooleanData $data;
 

@@ -27,7 +27,7 @@ use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-class DateTimeDataTest extends TestCase
+class T10_DateTimeDataTest extends TestCase
 {
     private DateTimeData $data;
 

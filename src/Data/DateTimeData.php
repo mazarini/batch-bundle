@@ -23,50 +23,56 @@ declare(strict_types=1);
 namespace Mazarini\BatchBundle\Data;
 
 use Mazarini\BatchBundle\Enum\TypeEnum;
+use Mazarini\BatchBundle\Exception\MisFormatedException;
 
 /**
+ * @extends MixedDataAbstract<\DateTimeImmutable>
+ *
  * @internal This class is internal to the BatchBundle
  */
-class DateTimeData extends DataAbstract
+class DateTimeData extends MixedDataAbstract
 {
-    private \DateTimeImmutable $value;
-    private string $dateFormat = 'Y-m-d H:i:s';
+    private string $inputFormat;
 
-    public function __construct(string $dateFormat = 'Y-m-d H:i:s')
+    /**
+     * Initialize datetime data with custom format.
+     */
+    public function __construct(string $inputFormat = 'Y-m-d H:i:s')
     {
         parent::__construct(TypeEnum::DATE_TIME);
-        $this->dateFormat = $dateFormat;
+        $this->inputFormat = $inputFormat;
     }
 
-    protected function resetValue(): static
-    {
-        unset($this->value);
-
-        return $this;
-    }
-
+    /**
+     * Get raw value formatted as string.
+     */
     public function getRawValue(): string
     {
-        return $this->isNull() ? '' : $this->formatValue($this->value);
+        return $this->isNull() ? '' : $this->value->format($this->inputFormat);
     }
 
+    /**
+     * Set raw value by parsing datetime string.
+     */
     public function setRawValue(?string $rawValue): static
     {
         if ($rawValue === null) {
             return $this->setNull();
         }
 
-        $dateTime = \DateTimeImmutable::createFromFormat($this->dateFormat, $rawValue);
+        $dateTime = \DateTimeImmutable::createFromFormat($this->inputFormat, $rawValue);
         if ($dateTime === false) {
-            throw new \InvalidArgumentException("Cannot convert '{$rawValue}' to datetime with format '{$this->dateFormat}'");
+            throw new MisFormatedException($rawValue, $this->inputFormat, static::class);
         }
 
         $this->value = $dateTime;
-        $this->setNull(false);
 
         return $this;
     }
 
+    /**
+     * Gets the datetime value, throws exception if null.
+     */
     public function getAsDateTime(): \DateTimeImmutable
     {
         if ($this->isNull()) {
@@ -76,30 +82,23 @@ class DateTimeData extends DataAbstract
         return $this->value;
     }
 
-    public function getAsDateTimeOrNull(): ?\DateTimeImmutable
-    {
-        return $this->isNull() ? null : $this->value;
-    }
-
+    /**
+     * Sets the datetime value.
+     */
     public function setAsDateTime(\DateTimeImmutable $value): static
     {
         $this->value = $value;
-        $this->setNull(false);
 
         return $this;
     }
 
-    public function setAsDateTimeOrNull(?\DateTimeImmutable $value): static
+    /**
+     * Sets the input format for parsing and formatting.
+     */
+    public function setInputFormat(string $inputFormat): static
     {
-        if ($value === null) {
-            return $this->setNull();
-        }
+        $this->inputFormat = $inputFormat;
 
-        return $this->setAsDateTime($value);
-    }
-
-    protected function formatValue(\DateTimeImmutable $value): string
-    {
-        return $value->format($this->dateFormat);
+        return $this;
     }
 }

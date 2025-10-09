@@ -61,7 +61,7 @@ interface DataInterface
     /**
      * Sets the value to null.
      */
-    public function setNull(bool $flagNull): static;
+    public function setNull(): static;
 
     // -------------------------------------------------------------------------
     // INTEGER methods

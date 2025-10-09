@@ -27,7 +27,7 @@ use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-class IntlDecimalDataTest extends TestCase
+class T50_IntlDecimalDataTest extends TestCase
 {
     private IntlDecimalData $data;
 

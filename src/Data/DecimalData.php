@@ -25,48 +25,27 @@ namespace Mazarini\BatchBundle\Data;
 use Mazarini\BatchBundle\Enum\TypeEnum;
 
 /**
+ * @extends ScalarDataAbstract<float>
+ *
  * @internal This class is internal to the BatchBundle
  */
-class DecimalData extends DataAbstract
+class DecimalData extends ScalarDataAbstract
 {
-    private float $value;
-
+    /**
+     * Initialize decimal data with FILTER_VALIDATE_FLOAT and thousand/scientific notation support.
+     */
     public function __construct()
     {
-        parent::__construct(TypeEnum::DECIMAL);
+        $options = [
+            'flags' => \FILTER_FLAG_ALLOW_THOUSAND | \FILTER_FLAG_ALLOW_SCIENTIFIC,
+        ];
+
+        parent::__construct(TypeEnum::DECIMAL, \FILTER_VALIDATE_FLOAT, $options);
     }
 
-    protected function resetValue(): static
-    {
-        unset($this->value);
-
-        return $this;
-    }
-
-    public function getRawValue(): string
-    {
-        return $this->formatScalarValue($this->value);
-    }
-
-    public function setRawValue(?string $rawValue): static
-    {
-        if ($rawValue === null) {
-            return $this->setNull();
-        }
-
-        $normalizedValue = \mb_trim($rawValue);
-
-        $floatValue = \filter_var($normalizedValue, \FILTER_VALIDATE_FLOAT, \FILTER_FLAG_ALLOW_THOUSAND | \FILTER_FLAG_ALLOW_SCIENTIFIC);
-        if ($floatValue === false) {
-            throw new \InvalidArgumentException("Cannot convert '{$rawValue}' to decimal");
-        }
-
-        $this->value = $floatValue;
-        $this->setNull(false);
-
-        return $this;
-    }
-
+    /**
+     * Gets the decimal value, throws exception if null.
+     */
     public function getAsDecimal(): float
     {
         if ($this->isNull()) {
@@ -76,25 +55,13 @@ class DecimalData extends DataAbstract
         return $this->value;
     }
 
-    public function getAsDecimalOrNull(): ?float
-    {
-        return $this->isNull() ? null : $this->value;
-    }
-
+    /**
+     * Sets the decimal value.
+     */
     public function setAsDecimal(float $value): static
     {
         $this->value = $value;
-        $this->setNull(false);
 
         return $this;
-    }
-
-    public function setAsDecimalOrNull(?float $value): static
-    {
-        if ($value === null) {
-            return $this->setNull();
-        }
-
-        return $this->setAsDecimal($value);
     }
 }

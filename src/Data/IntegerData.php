@@ -28,98 +28,47 @@ use Mazarini\BatchBundle\Enum\TypeEnum;
  * Integer data type implementation with validation and range checking.
  * Handles mainframe-style leading zeros removal.
  *
+ * @extends ScalarDataAbstract<int>
+ *
  * @internal This class is internal to the BatchBundle
  */
-class IntegerData extends DataAbstract
+class IntegerData extends ScalarDataAbstract
 {
-    private int $value;
-    private int $filter;
     /**
-     * @var array<string, mixed>
-     */
-    private array $options;
-
-    /**
-     * Initialize integer data with validation filter and optional range.
+     * Initialize integer data with optional range validation.
      *
-     * @param int      $filter   PHP filter constant (default: FILTER_VALIDATE_INT)
      * @param int|null $minRange Minimum allowed value
      * @param int|null $maxRange Maximum allowed value
      */
     public function __construct(int $filter = \FILTER_VALIDATE_INT, ?int $minRange = null, ?int $maxRange = null)
     {
-        parent::__construct(TypeEnum::INTEGER);
-        $this->filter  = $filter;
-        $this->options = [];
-
+        $options = [];
         if ($minRange !== null || $maxRange !== null) {
-            $this->options['options'] = [];
+            $options['options'] = [];
             if ($minRange !== null) {
-                $this->options['options']['min_range'] = $minRange;
+                $options['options']['min_range'] = $minRange;
             }
             if ($maxRange !== null) {
-                $this->options['options']['max_range'] = $maxRange;
+                $options['options']['max_range'] = $maxRange;
             }
         }
+
+        parent::__construct(TypeEnum::INTEGER, $filter, $options);
     }
 
     /**
-     * Reset the internal value by unsetting it.
+     * Override clean method to handle leading zeros removal for mainframe compatibility.
      */
-    protected function resetValue(): static
+    protected function clean(string $rawValue): string
     {
-        unset($this->value);
+        $trimmed             = \mb_trim($rawValue);
+        $withoutLeadingZeros = \mb_ltrim($trimmed, '0');
 
-        return $this;
+        return $withoutLeadingZeros !== '' ? $withoutLeadingZeros : '0';
     }
 
     /**
-     * Get the raw integer value with optional formatting.
-     *
-     * @return string Formatted integer value
-     */
-    public function getRawValue(): string
-    {
-        return $this->formatScalarValue($this->value);
-    }
-
-    /**
-     * Validate and convert string to integer.
-     *
-     * @param string $rawValue The raw string value to validate
-     *
-     * @throws \InvalidArgumentException If validation fails
-     */
-    protected function validateInteger(string $rawValue): int
-    {
-        $cleanValue = \mb_ltrim(\mb_trim($rawValue), '0');
-        $cleanValue = $cleanValue !== '' ? $cleanValue : '0';
-
-        $intValue = \filter_var($cleanValue, $this->filter, $this->options);
-
-        if ($intValue === false) {
-            throw new \InvalidArgumentException("Cannot convert '{$rawValue}' to integer");
-        }
-
-        return $intValue;
-    }
-
-    /**
-     * Set raw value by delegating to setAsIntegerOrNull.
-     *
-     * @param string|null $rawValue The raw string value or null
-     */
-    public function setRawValue(?string $rawValue): static
-    {
-        $value = $rawValue === null ? null : $this->validateInteger($rawValue);
-
-        return $this->setAsIntegerOrNull($value);
-    }
-
-    /**
-     * Get the integer value, throws exception if null.
-     *
-     * @throws \InvalidArgumentException If value is null
+     * Gets the integer value, throws exception if null.
      */
     public function getAsInteger(): int
     {
@@ -131,37 +80,12 @@ class IntegerData extends DataAbstract
     }
 
     /**
-     * Get the integer value or null if not set.
-     */
-    public function getAsIntegerOrNull(): ?int
-    {
-        return $this->isNull() ? null : $this->value;
-    }
-
-    /**
-     * Set integer value.
-     *
-     * @param int $value The integer value to set
+     * Sets the integer value.
      */
     public function setAsInteger(int $value): static
     {
-        $this->value    = $value;
-        $this->setNull(false);
+        $this->value = $value;
 
         return $this;
-    }
-
-    /**
-     * Set integer value or null.
-     *
-     * @param int|null $value The integer value to set or null
-     */
-    public function setAsIntegerOrNull(?int $value): static
-    {
-        if ($value === null) {
-            return $this->setNull();
-        }
-
-        return $this->setAsInteger($value);
     }
 }

@@ -26,7 +26,7 @@ use Mazarini\BatchBundle\Data\IntegerData;
 use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\TestCase;
 
-class IntegerDataTest extends TestCase
+class T30_IntegerDataTest extends TestCase
 {
     private IntegerData $data;
 
@@ -86,7 +86,7 @@ class IntegerDataTest extends TestCase
     public function testSetRawValueWithInvalidValue(): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage("Cannot convert 'abc' to integer");
+        $this->expectExceptionMessage("Cannot validate 'abc' with filter in Mazarini\BatchBundle\Data\IntegerData.");
         $this->data->setRawValue('abc');
     }
 

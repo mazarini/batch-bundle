@@ -25,46 +25,31 @@ namespace Mazarini\BatchBundle\Data;
 use Mazarini\BatchBundle\Enum\TypeEnum;
 
 /**
+ * @extends ScalarDataAbstract<bool>
+ *
  * @internal This class is internal to the BatchBundle
  */
-class BooleanData extends DataAbstract
+class BooleanData extends ScalarDataAbstract
 {
-    private bool $value;
-
+    /**
+     * Initialize boolean data with FILTER_VALIDATE_BOOLEAN.
+     */
     public function __construct()
     {
-        parent::__construct(TypeEnum::BOOLEAN);
+        parent::__construct(TypeEnum::BOOLEAN, \FILTER_VALIDATE_BOOLEAN, []);
     }
 
-    protected function resetValue(): static
-    {
-        unset($this->value);
-
-        return $this;
-    }
-
+    /**
+     * Override getRawValue to return '1'/'0' or ' ' for null.
+     */
     public function getRawValue(): string
     {
         return $this->isNull() ? ' ' : ($this->value ? '1' : '0');
     }
 
-    public function setRawValue(?string $rawValue): static
-    {
-        if ($rawValue === null) {
-            return $this->setNull();
-        }
-
-        $boolValue = \filter_var($rawValue, \FILTER_VALIDATE_BOOLEAN, \FILTER_NULL_ON_FAILURE);
-        if ($boolValue === null) {
-            throw new \InvalidArgumentException("Cannot convert '{$rawValue}' to boolean");
-        }
-
-        $this->value = $boolValue;
-        $this->setNull(false);
-
-        return $this;
-    }
-
+    /**
+     * Gets the boolean value, throws exception if null.
+     */
     public function getAsBoolean(): bool
     {
         if ($this->isNull()) {
@@ -74,25 +59,13 @@ class BooleanData extends DataAbstract
         return $this->value;
     }
 
-    public function getAsBooleanOrNull(): ?bool
-    {
-        return $this->isNull() ? null : $this->value;
-    }
-
+    /**
+     * Sets the boolean value.
+     */
     public function setAsBoolean(bool $value): static
     {
         $this->value = $value;
-        $this->setNull(false);
 
         return $this;
-    }
-
-    public function setAsBooleanOrNull(?bool $value): static
-    {
-        if ($value === null) {
-            return $this->setNull();
-        }
-
-        return $this->setAsBoolean($value);
     }
 }

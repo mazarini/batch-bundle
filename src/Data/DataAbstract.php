@@ -22,24 +22,22 @@ declare(strict_types=1);
 
 namespace Mazarini\BatchBundle\Data;
 
-use Mazarini\BatchBundle\Contract\DataInterface;
 use Mazarini\BatchBundle\Enum\TypeEnum;
+use Mazarini\BatchBundle\Exception\MethodNotImplementedException;
+use Mazarini\BatchBundle\Exception\TypeMismatchException;
 
 /**
  * Implements the DataInterface contract, acting only as a metadata container
  * (Type and Null Flag). All accessors are disabled to force external processing logic.
  *
+ * @template T
+ *
  * @internal this class is internal to the BatchBundle
  */
-abstract class DataAbstract implements DataInterface
+abstract class DataAbstract implements \Mazarini\BatchBundle\Contract\DataInterface
 {
     /** @var TypeEnum The fixed, declared type of the parameter. */
-    private TypeEnum $type;
-
-    /** @var bool TRUE if the value is logically NULL (the DB2 null indicator). */
-    private bool $nullFlag = true;
-
-    protected ?string $format = null;
+    protected TypeEnum $type;
 
     /**
      * @param TypeEnum $type the fixed type this object represents
@@ -47,71 +45,38 @@ abstract class DataAbstract implements DataInterface
     public function __construct(TypeEnum $type)
     {
         $this->type = $type;
-        $this->reset();
     }
 
-    // -------------------------------------------------------------------------
-    // NULL MANAGEMENT & METADATA (Functional)
-    // -------------------------------------------------------------------------
+    // Abstract methods
+    abstract public function isNull(): bool;
 
-    /**
-     * {@inheritDoc}
-     */
-    public function isNull(): bool
-    {
-        return $this->nullFlag;
-    }
+    abstract public function setNull(): static;
 
-    /**
-     * {@inheritDoc}
-     * Sets the value to NULL by updating ONLY the indicator.
-     */
-    public function setNull(bool $flagNull = true): static
-    {
-        $this->nullFlag = $flagNull;
-        if ($flagNull) {
-            $this->resetValue();
-        }
+    abstract public function reset(): static;
 
-        return $this;
-    }
+    abstract public function setFormat(?string $format): static;
 
-    /**
-     * {@inheritDoc}
-     */
-    public function reset(): static
-    {
-        return $this->setNull();
-    }
+    abstract public function getAsIntegerOrNull(): ?int;
 
-    abstract protected function resetValue(): static;
+    abstract public function setAsIntegerOrNull(?int $value): static;
 
-    // -------------------------------------------------------------------------
-    // EXCEPTION HANDLERS
-    // -------------------------------------------------------------------------
+    abstract public function getAsDecimalOrNull(): ?float;
 
-    /**
-     * Throws an exception for methods that are part of the interface but intentionally not implemented in this concrete class.
-     */
-    private function throwNotImplementedException(string $methodName): never
-    {
-        throw new \BadMethodCallException(\sprintf('Function %s::%s is not implemented in this object. Use the external Processor for raw value manipulation.', static::class, $methodName));
-    }
+    abstract public function setAsDecimalOrNull(?float $value): static;
 
-    /**
-     * Throws an exception indicating a type mismatch or a disabled typed accessor.
-     */
-    private function throwTypedMismatchDisabledException(string $methodName, string $expectedType): never
-    {
-        $currentType = $this->type->value;
+    abstract public function getAsDateTimeOrNull(): ?\DateTimeImmutable;
 
-        throw new \BadMethodCallException(\sprintf('Type mismatch: The parameter type is "%s", but the method called (%s) expects "%s". The function is disabled in %s.', $currentType, $methodName, $expectedType, static::class));
-    }
+    abstract public function setAsDateTimeOrNull(?\DateTimeImmutable $value): static;
 
-    // -------------------------------------------------------------------------
-    // RAW ACCESSORS (FORCED FAILURE: NOT IMPLEMENTED)
-    // -------------------------------------------------------------------------
+    abstract public function getAsBooleanOrNull(): ?bool;
 
+    abstract public function setAsBooleanOrNull(?bool $value): static;
+
+    abstract public function getAsStringOrNull(): ?string;
+
+    abstract public function setAsStringOrNull(?string $value): static;
+
+    // Public methods - interface order
     public function getRawValue(): string
     {
         $this->throwNotImplementedException(__FUNCTION__);
@@ -122,16 +87,7 @@ abstract class DataAbstract implements DataInterface
         $this->throwNotImplementedException(__FUNCTION__);
     }
 
-    // -------------------------------------------------------------------------
-    // TYPED ACCESSORS (FORCED FAILURE: TYPE MISMATCH)
-    // -------------------------------------------------------------------------
-
     public function getAsInteger(): int
-    {
-        $this->throwTypedMismatchDisabledException(__FUNCTION__, 'integer');
-    }
-
-    public function getAsIntegerOrNull(): ?int
     {
         $this->throwTypedMismatchDisabledException(__FUNCTION__, 'integer');
     }
@@ -141,17 +97,7 @@ abstract class DataAbstract implements DataInterface
         $this->throwTypedMismatchDisabledException(__FUNCTION__, 'integer');
     }
 
-    public function setAsIntegerOrNull(?int $value): static
-    {
-        $this->throwTypedMismatchDisabledException(__FUNCTION__, 'integer');
-    }
-
     public function getAsDecimal(): float
-    {
-        $this->throwTypedMismatchDisabledException(__FUNCTION__, 'decimal');
-    }
-
-    public function getAsDecimalOrNull(): ?float
     {
         $this->throwTypedMismatchDisabledException(__FUNCTION__, 'decimal');
     }
@@ -161,17 +107,7 @@ abstract class DataAbstract implements DataInterface
         $this->throwTypedMismatchDisabledException(__FUNCTION__, 'decimal');
     }
 
-    public function setAsDecimalOrNull(?float $value): static
-    {
-        $this->throwTypedMismatchDisabledException(__FUNCTION__, 'decimal');
-    }
-
     public function getAsDateTime(): \DateTimeImmutable
-    {
-        $this->throwTypedMismatchDisabledException(__FUNCTION__, 'datetime');
-    }
-
-    public function getAsDateTimeOrNull(): ?\DateTimeImmutable
     {
         $this->throwTypedMismatchDisabledException(__FUNCTION__, 'datetime');
     }
@@ -181,17 +117,7 @@ abstract class DataAbstract implements DataInterface
         $this->throwTypedMismatchDisabledException(__FUNCTION__, 'datetime');
     }
 
-    public function setAsDateTimeOrNull(?\DateTimeImmutable $value): static
-    {
-        $this->throwTypedMismatchDisabledException(__FUNCTION__, 'datetime');
-    }
-
     public function getAsBoolean(): bool
-    {
-        $this->throwTypedMismatchDisabledException(__FUNCTION__, 'boolean');
-    }
-
-    public function getAsBooleanOrNull(): ?bool
     {
         $this->throwTypedMismatchDisabledException(__FUNCTION__, 'boolean');
     }
@@ -201,17 +127,7 @@ abstract class DataAbstract implements DataInterface
         $this->throwTypedMismatchDisabledException(__FUNCTION__, 'boolean');
     }
 
-    public function setAsBooleanOrNull(?bool $value): static
-    {
-        $this->throwTypedMismatchDisabledException(__FUNCTION__, 'boolean');
-    }
-
     public function getAsString(): string
-    {
-        $this->throwTypedMismatchDisabledException(__FUNCTION__, 'string');
-    }
-
-    public function getAsStringOrNull(): ?string
     {
         $this->throwTypedMismatchDisabledException(__FUNCTION__, 'string');
     }
@@ -221,27 +137,25 @@ abstract class DataAbstract implements DataInterface
         $this->throwTypedMismatchDisabledException(__FUNCTION__, 'string');
     }
 
-    public function setAsStringOrNull(?string $value): static
-    {
-        $this->throwTypedMismatchDisabledException(__FUNCTION__, 'string');
-    }
+    // -------------------------------------------------------------------------
+    // EXCEPTION HANDLERS
+    // -------------------------------------------------------------------------
 
-    public function setFormat(?string $format): static
+    /**
+     * Throws an exception for methods that are part of the interface but intentionally not implemented in this concrete class.
+     */
+    private function throwNotImplementedException(string $methodName): never
     {
-        $this->format = $format;
-
-        return $this;
+        throw new MethodNotImplementedException(static::class, $methodName);
     }
 
     /**
-     * formatScalarValue.
-     *
-     * @param scalar $value
+     * Throws an exception indicating a type mismatch or a disabled typed accessor.
      */
-    protected function formatScalarValue(mixed $value): string
+    private function throwTypedMismatchDisabledException(string $methodName, string $expectedType): never
     {
-        return $this->format === null
-            ? (string) $value
-            : \sprintf($this->format, $value);
+        $currentType = $this->type->value;
+
+        throw new TypeMismatchException($currentType, $methodName, $expectedType, static::class);
     }
 }

@@ -26,7 +26,7 @@ use Mazarini\BatchBundle\Data\StringData;
 use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\TestCase;
 
-class StringDataTest extends TestCase
+class T20_StringDataTest extends TestCase
 {
     private StringData $data;
 

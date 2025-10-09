@@ -26,7 +26,7 @@ use Mazarini\BatchBundle\Data\DecimalData;
 use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\TestCase;
 
-class DecimalDataTest extends TestCase
+class T40_DecimalDataTest extends TestCase
 {
     private DecimalData $data;
 
@@ -89,7 +89,7 @@ class DecimalDataTest extends TestCase
     public function testSetRawValueWithInvalidValue(): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage("Cannot convert 'abc' to decimal");
+        $this->expectExceptionMessage("Cannot validate 'abc' with filter in Mazarini\BatchBundle\Data\DecimalData.");
         $this->data->setRawValue('abc');
     }
 
