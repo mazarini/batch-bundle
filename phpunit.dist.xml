@@ -24,6 +24,7 @@
         <testsuite name="Project Test Suite">
             <directory>tests/DataAbstract</directory>
             <directory>tests/Data</directory>
+            <directory>tests/Field</directory>
         </testsuite>
     </testsuites>
 

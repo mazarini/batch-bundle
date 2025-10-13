@@ -20,24 +20,15 @@ declare(strict_types=1);
  * along with mazarini/batch-bundle. If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Mazarini\BatchBundle\Field;
+namespace Mazarini\BatchBundle\Contract;
 
-use Mazarini\BatchBundle\Contract\DataInterface;
-
-/**
- * @internal This class is internal to the BatchBundle
- */
-class CsvField extends Field
+interface FieldInterface extends Resetable
 {
-    public function __construct(
-        private int $position,
-        ?DataInterface $data = null,
-    ) {
-        parent::__construct((string) $position, $data);
-    }
+    public function getName(): string;
 
-    public function getPosition(): int
-    {
-        return $this->position;
-    }
+    public function getData(): DataInterface;
+
+    public function setData(DataInterface $data): static;
+
+    public function isReady(): bool;
 }

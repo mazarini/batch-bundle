@@ -63,7 +63,9 @@ abstract class FixedReader implements ReaderInterface
                 throw new \InvalidArgumentException("Field '{$fieldName}' does not exist in structure.");
             }
             $fieldConfig              = $structure[$fieldName];
-            $this->record[$fieldName] = new FixedField($data, $fieldConfig['start'], $fieldConfig['length']);
+            $field                    = new FixedField($fieldConfig['length'], $fieldName, $data);
+            $field->setStartPosition($fieldConfig['start']);
+            $this->record[$fieldName] = $field;
         }
 
         return $this;
@@ -96,7 +98,7 @@ abstract class FixedReader implements ReaderInterface
         foreach ($this->fieldNames as $fieldName) {
             /** @var FixedField $field */
             $field = $this->record[$fieldName];
-            $value = $field->extractFromLine($line);
+            $value = \mb_substr($line, $field->getStartPosition(), $field->getLength());
             $field->getData()->setRawValue(\mb_trim($value));
         }
 

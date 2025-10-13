@@ -23,23 +23,55 @@ declare(strict_types=1);
 namespace Mazarini\BatchBundle\Field;
 
 use Mazarini\BatchBundle\Contract\DataInterface;
-use Mazarini\BatchBundle\Contract\Resetable;
+use Mazarini\BatchBundle\Contract\FieldInterface;
 
 /**
  * @internal This class is internal to the BatchBundle
  */
-class Field implements Resetable
+class Field implements FieldInterface
 {
+    /**
+     * Field constructor.
+     *
+     * @param string             $name the name of the field, used as its identifier
+     * @param DataInterface|null $data the initial Data object to encapsulate
+     */
     public function __construct(
-        private DataInterface $data
+        private string $name,
+        private ?DataInterface $data = null
     ) {
     }
 
+    /**
+     * Gets the name of the field.
+     *
+     * @return string the identifier of the field
+     */
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    /**
+     * Retrieves the Data object encapsulated by the field.
+     *
+     * @throws \RuntimeException if no Data object is set
+     */
     public function getData(): DataInterface
     {
+        if (null === $this->data) {
+            $message = \sprintf('Field "%s" is not configured. $data is undefined', $this->getName());
+            throw new \RuntimeException($message);
+        }
+
         return $this->data;
     }
 
+    /**
+     * Sets or replaces the Data object for the field.
+     *
+     * @param DataInterface $data the Data object to set
+     */
     public function setData(DataInterface $data): static
     {
         $this->data = $data;
@@ -47,9 +79,21 @@ class Field implements Resetable
         return $this;
     }
 
+    /**
+     * Checks if the field contains a Data object.
+     *
+     * @return bool returns true if no Data object is set, false otherwise
+     */
+    public function isReady(): bool
+    {
+        return null !== $this->data;
+    }
+
     public function reset(): static
     {
-        $this->data->reset();
+        if (null !== $this->data) {
+            $this->data->reset();
+        }
 
         return $this;
     }

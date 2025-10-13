@@ -26,17 +26,37 @@ use Mazarini\BatchBundle\Contract\DataInterface;
 
 class FixedField extends Field
 {
+    private ?int $startPosition = null;
+
     public function __construct(
-        DataInterface $data,
-        private int $startPosition,
-        private int $length
+        private int $length,
+        string $name,
+        ?DataInterface $data = null
     ) {
-        parent::__construct($data);
+        parent::__construct($name, $data);
     }
 
     public function getStartPosition(): int
     {
+        if (null === $this->startPosition) {
+            throw new \RuntimeException('You cannot call getStartPosition() when the startPosition is null. Configure object FixedRecord first.');
+        }
+
         return $this->startPosition;
+    }
+
+    /**
+     * setStartPosition.
+     *
+     * @param int $startPosition start position of this field
+     *
+     * @return int start position of next field
+     */
+    public function setStartPosition(int $startPosition): int
+    {
+        $this->startPosition = $startPosition;
+
+        return $this->startPosition + $this->length;
     }
 
     public function getLength(): int
@@ -44,13 +64,13 @@ class FixedField extends Field
         return $this->length;
     }
 
-    public function getEndPosition(): int
+    /**
+     * Checks if the field contains a Data object and startPosition is set.
+     *
+     * @return bool returns true if no Data object is set, false otherwise
+     */
+    public function isReady(): bool
     {
-        return $this->startPosition + $this->length - 1;
-    }
-
-    public function extractFromLine(string $line): string
-    {
-        return \mb_substr($line, $this->startPosition, $this->length);
+        return parent::isReady() && (null !== $this->startPosition);
     }
 }

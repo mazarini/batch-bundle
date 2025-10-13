@@ -20,24 +20,20 @@ declare(strict_types=1);
  * along with mazarini/batch-bundle. If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Mazarini\BatchBundle\Field;
+namespace App\Tests\Field;
 
 use Mazarini\BatchBundle\Contract\DataInterface;
+use Mazarini\BatchBundle\Field\CsvField;
+use PHPUnit\Framework\TestCase;
 
-/**
- * @internal This class is internal to the BatchBundle
- */
-class CsvField extends Field
+class T20_CsvFieldTest extends TestCase
 {
-    public function __construct(
-        private int $position,
-        ?DataInterface $data = null,
-    ) {
-        parent::__construct((string) $position, $data);
-    }
-
-    public function getPosition(): int
+    public function testConstructAndGetPosition(): void
     {
-        return $this->position;
+        $dataMock = self::createMock(DataInterface::class);
+        $csvField = new CsvField(1, $dataMock);
+        self::assertSame(1, $csvField->getPosition());
+        $csvField = new CsvField(2);
+        self::assertSame(2, $csvField->getPosition());
     }
 }
