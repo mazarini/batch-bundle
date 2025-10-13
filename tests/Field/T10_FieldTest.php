@@ -55,7 +55,8 @@ class T10_FieldTest extends TestCase
 
     public function testReset(): void
     {
-        $data  = new StringData()->setAsString('test');
+        $data  = new StringData();
+        $data->setAsString('test');
         $field = new Field('test_name', $data);
         self::assertFalse($data->isNull());
         $field->reset();
