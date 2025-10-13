@@ -23,7 +23,7 @@ declare(strict_types=1);
 namespace Mazarini\BatchBundle\Reader\File;
 
 use Mazarini\BatchBundle\Collection\DataCollection;
-use Mazarini\BatchBundle\Collection\ObjectCollection;
+use Mazarini\BatchBundle\Collection\ObjectArray;
 use Mazarini\BatchBundle\Collection\Record;
 use Mazarini\BatchBundle\Contract\ReaderInterface;
 use Mazarini\BatchBundle\Field\FixedField;
@@ -35,12 +35,12 @@ abstract class FixedReader implements ReaderInterface
     private array $fieldNames = [];
     /** @var resource|null */
     private $handle;
-    /** @var ObjectCollection<FixedField> */
-    private ObjectCollection $record;
+    /** @var ObjectArray<string, FixedField> */
+    private ObjectArray $record;
 
     public function __construct(private string $filePath)
     {
-        $this->record = new ObjectCollection();
+        $this->record = new ObjectArray();
     }
 
     /**
@@ -94,6 +94,7 @@ abstract class FixedReader implements ReaderInterface
         $line = \mb_rtrim($line, "\r\n");
 
         foreach ($this->fieldNames as $fieldName) {
+            /** @var FixedField $field */
             $field = $this->record[$fieldName];
             $value = $field->extractFromLine($line);
             $field->getData()->setRawValue(\mb_trim($value));

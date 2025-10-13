@@ -74,7 +74,7 @@ src/
 │   ├── BooleanData.php
 │   └── DateTimeData.php
 ├── Collection/        # Data containers
-│   ├── ObjectCollection.php
+│   ├── ObjectArray.php
 │   ├── DataCollection.php
 │   └── Record.php
 ├── Field/            # Field wrappers

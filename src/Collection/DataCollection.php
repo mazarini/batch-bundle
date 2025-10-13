@@ -26,9 +26,9 @@ use Mazarini\BatchBundle\Contract\DataCollectionInterface;
 use Mazarini\BatchBundle\Contract\DataInterface;
 
 /**
- * @extends ObjectCollection<DataInterface>
+ * @extends ObjectArray<string, DataInterface>
  */
-class DataCollection extends ObjectCollection implements DataCollectionInterface
+class DataCollection extends ObjectArray implements DataCollectionInterface
 {
     /**
      * @param array<string, DataInterface> $items
@@ -79,6 +79,9 @@ class DataCollection extends ObjectCollection implements DataCollectionInterface
         return $this;
     }
 
+    /**
+     * Resets each data item in the collection.
+     */
     public function reset(): static
     {
         foreach ($this->items as $data) {

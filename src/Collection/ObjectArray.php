@@ -22,27 +22,30 @@ declare(strict_types=1);
 
 namespace Mazarini\BatchBundle\Collection;
 
+use Mazarini\BatchBundle\Contract\Resetable;
+
 /**
- * A typed collection of ItemInterface accessible via string keys.
+ * A typed collection of items accessible via string or integer keys.
  *
- * @template T of Object
+ * @template TKey of array-key
+ * @template TValue of Resetable
  *
- * @implements \IteratorAggregate<string, T>
- * @implements \ArrayAccess<string, T>
+ * @implements \IteratorAggregate<TKey, TValue>
+ * @implements \ArrayAccess<TKey, TValue>
  */
-class ObjectCollection implements \IteratorAggregate, \ArrayAccess, \Countable
+class ObjectArray implements \IteratorAggregate, \ArrayAccess, \Countable, Resetable
 {
     /**
-     * The items stored in the collection, indexed by string keys.
+     * The items stored in the collection.
      *
-     * @var array<string, T>
+     * @var array<TKey, TValue>
      */
     protected array $items = [];
 
     /**
      * Initializes the collection with an array of objects.
      *
-     * @param array<string, T> $items array of objects to store in the collection
+     * @param array<TKey, TValue> $items array of objects to store in the collection
      */
     public function __construct(array $items = [])
     {
@@ -52,7 +55,7 @@ class ObjectCollection implements \IteratorAggregate, \ArrayAccess, \Countable
     /**
      * Returns an iterator to traverse the collection.
      *
-     * @return \Traversable<string, T> iterator for the collection
+     * @return \Traversable<TKey, TValue> iterator for the collection
      */
     public function getIterator(): \Traversable
     {
@@ -62,21 +65,21 @@ class ObjectCollection implements \IteratorAggregate, \ArrayAccess, \Countable
     /**
      * Checks whether a key exists in the collection.
      *
-     * @param mixed $offset the key to check
+     * @param TKey $offset the key to check
      *
-     * @return bool true if the key exists and is a string, false otherwise
+     * @return bool true if the key exists, false otherwise
      */
     public function offsetExists(mixed $offset): bool
     {
-        return \is_string($offset) && \array_key_exists($offset, $this->items);
+        return \array_key_exists($offset, $this->items);
     }
 
     /**
      * Retrieves an item from the collection by key.
      *
-     * @param string $offset the key of the item
+     * @param TKey $offset the key of the item
      *
-     * @return T|null the object associated with the key, or null if not found
+     * @return TValue|null the object associated with the key, or null if not found
      */
     public function offsetGet(mixed $offset): mixed
     {
@@ -86,28 +89,22 @@ class ObjectCollection implements \IteratorAggregate, \ArrayAccess, \Countable
     /**
      * Adds or replaces an item in the collection.
      *
-     * @param mixed $offset the key of the item (must be a string, null not allowed)
-     * @param T     $value  the object to store
-     *
-     * @throws \InvalidArgumentException if the key is not a string
+     * @param TKey|null $offset the key of the item
+     * @param TValue    $value  the object to store
      */
     public function offsetSet(mixed $offset, mixed $value): void
     {
-        if ($offset === null) {
-            throw new \InvalidArgumentException('String key is required for ObjectCollection.');
+        if (null === $offset) {
+            $this->items[] = $value;
+        } else {
+            $this->items[$offset] = $value;
         }
-
-        if (! \is_string($offset)) {
-            throw new \InvalidArgumentException('Key must be a string.');
-        }
-
-        $this->items[$offset] = $value;
     }
 
     /**
      * Removes an item from the collection by key.
      *
-     * @param string $offset the key of the item to remove
+     * @param TKey $offset the key of the item to remove
      */
     public function offsetUnset(mixed $offset): void
     {
@@ -122,5 +119,17 @@ class ObjectCollection implements \IteratorAggregate, \ArrayAccess, \Countable
     public function count(): int
     {
         return \count($this->items);
+    }
+
+    /**
+     * Resets each item in the collection.
+     */
+    public function reset(): static
+    {
+        foreach ($this->items as $item) {
+            $item->reset();
+        }
+
+        return $this;
     }
 }

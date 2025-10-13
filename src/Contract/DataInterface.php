@@ -31,7 +31,7 @@ use DateTimeImmutable;
  *
  * @internal This interface is internal to the BatchBundle
  */
-interface DataInterface
+interface DataInterface extends Resetable
 {
     /**
      * Retrieves the raw, converted value to string.

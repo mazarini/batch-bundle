@@ -23,7 +23,7 @@ declare(strict_types=1);
 namespace Mazarini\BatchBundle\Reader\File;
 
 use Mazarini\BatchBundle\Collection\DataCollection;
-use Mazarini\BatchBundle\Collection\ObjectCollection;
+use Mazarini\BatchBundle\Collection\ObjectArray;
 use Mazarini\BatchBundle\Collection\Record;
 use Mazarini\BatchBundle\Contract\ReaderInterface;
 use Mazarini\BatchBundle\Field\CsvField;
@@ -38,8 +38,8 @@ abstract class CsvReader implements ReaderInterface
     private array $fieldNames = [];
     /** @var resource|null */
     private $handle;
-    /** @var ObjectCollection<CsvField> */
-    private ObjectCollection $record;
+    /** @var ObjectArray<string, CsvField> */
+    private ObjectArray $record;
     protected bool $hasHeaderRow = true;
 
     public function __construct(
@@ -47,7 +47,7 @@ abstract class CsvReader implements ReaderInterface
         private string $delimiter = ',',
         private string $enclosure = '"'
     ) {
-        $this->record = new ObjectCollection();
+        $this->record = new ObjectArray();
     }
 
     /**
@@ -101,6 +101,7 @@ abstract class CsvReader implements ReaderInterface
         }
 
         foreach ($this->fieldNames as $fieldName) {
+            /** @var CsvField $field */
             $field    = $this->record[$fieldName];
             $position = $field->getPosition();
             $field->getData()->setRawValue($row[$position]);

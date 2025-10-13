@@ -20,37 +20,9 @@ declare(strict_types=1);
  * along with mazarini/batch-bundle. If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Mazarini\BatchBundle\Field;
+namespace Mazarini\BatchBundle\Contract;
 
-use Mazarini\BatchBundle\Contract\DataInterface;
-use Mazarini\BatchBundle\Contract\Resetable;
-
-/**
- * @internal This class is internal to the BatchBundle
- */
-class Field implements Resetable
+interface Resetable
 {
-    public function __construct(
-        private DataInterface $data
-    ) {
-    }
-
-    public function getData(): DataInterface
-    {
-        return $this->data;
-    }
-
-    public function setData(DataInterface $data): static
-    {
-        $this->data = $data;
-
-        return $this;
-    }
-
-    public function reset(): static
-    {
-        $this->data->reset();
-
-        return $this;
-    }
+    public function reset(): static;
 }

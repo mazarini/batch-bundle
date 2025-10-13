@@ -26,9 +26,9 @@ use Mazarini\BatchBundle\Contract\DataInterface;
 use Mazarini\BatchBundle\Contract\RecordInterface;
 
 /**
- * @extends ObjectCollection<DataInterface>
+ * @extends ObjectArray<string, DataInterface>
  */
-class Record extends ObjectCollection implements RecordInterface
+class Record extends ObjectArray implements RecordInterface
 {
     /**
      * @param array<string, DataInterface> $items
