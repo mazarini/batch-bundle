@@ -41,6 +41,7 @@ class DateTimeData extends MixedDataAbstract
     {
         parent::__construct(TypeEnum::DATE_TIME);
         $this->inputFormat = $inputFormat;
+        $this->format      = $inputFormat;
     }
 
     /**
@@ -48,7 +49,7 @@ class DateTimeData extends MixedDataAbstract
      */
     public function getRawValue(): string
     {
-        return $this->isNull() ? '' : $this->value->format($this->inputFormat);
+        return $this->isNull() ? '' : $this->value->format($this->format);
     }
 
     /**
