@@ -192,4 +192,9 @@ interface DataInterface extends Resetable
      * Sets the value, accepting null.
      */
     public function setAsStringOrNull(?string $value): static;
+
+    /**
+     * Returns the type of the data.
+     */
+    public function getType(): \Mazarini\BatchBundle\Enum\TypeEnum;
 }

@@ -20,28 +20,18 @@ declare(strict_types=1);
  * along with mazarini/batch-bundle. If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Mazarini\BatchBundle\Field;
-
-use Mazarini\BatchBundle\Contract\DataInterface;
-use Mazarini\BatchBundle\Enum\InputTypeEnum;
+namespace Mazarini\BatchBundle\Enum;
 
 /**
- * @internal This class is internal to the BatchBundle
+ * Defines the types of input for a field.
+ *
+ * @internal This class is internal to the BatchBundle and should not be extended or used directly outside the bundle
  */
-class CsvField extends Field
+enum InputTypeEnum: string
 {
-    public function __construct(
-        string $name,
-        private int $position,
-        ?DataInterface $data = null,
-    ) {
-        $inputType = $data === null ? InputTypeEnum::AUTO : InputTypeEnum::RAW;
-        parent::__construct($name, $name, $inputType, $data);
-
-    }
-
-    public function getPosition(): int
-    {
-        return $this->position;
-    }
+    case MANUAL = 'manual';
+    case AUTO   = 'auto';
+    case CAST   = 'cast';
+    case RAW    = 'raw';
+    case VALUE  = 'value';
 }

@@ -72,7 +72,7 @@ abstract class CsvReader implements ReaderInterface
                 throw new \InvalidArgumentException("Field '{$fieldName}' does not exist in csvfield.");
             }
             $position                 = $this->getStructure()[$fieldName] ?? null;
-            $this->record[$fieldName] = new CsvField($position, $data);
+            $this->record[$fieldName] = new CsvField($fieldName, $position, $data);
         }
 
         return $this;

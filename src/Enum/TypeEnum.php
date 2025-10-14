@@ -55,4 +55,12 @@ enum TypeEnum: string
             default => false
         };
     }
+
+    public function isScalar(): bool
+    {
+        return match ($this) {
+            self::DATE_TIME => false,
+            default         => true
+        };
+    }
 }

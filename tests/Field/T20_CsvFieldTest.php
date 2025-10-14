@@ -23,17 +23,35 @@ declare(strict_types=1);
 namespace App\Tests\Field;
 
 use Mazarini\BatchBundle\Contract\DataInterface;
+use Mazarini\BatchBundle\Enum\InputTypeEnum;
 use Mazarini\BatchBundle\Field\CsvField;
 use PHPUnit\Framework\TestCase;
 
 class T20_CsvFieldTest extends TestCase
 {
-    public function testConstructAndGetPosition(): void
+    public function testConstruct(): void
     {
         $dataMock = self::createMock(DataInterface::class);
-        $csvField = new CsvField(1, $dataMock);
+        $csvField = new CsvField('name', 1, $dataMock);
         self::assertSame(1, $csvField->getPosition());
-        $csvField = new CsvField(2);
+        self::assertSame('name', $csvField->getName());
+        self::assertSame('name', $csvField->getInputName());
+        self::assertSame(InputTypeEnum::RAW, $csvField->getInputType());
+    }
+
+    public function testConstructDefault(): void
+    {
+        $csvField = new CsvField('name', 2);
         self::assertSame(2, $csvField->getPosition());
+        self::assertSame('name', $csvField->getName());
+        self::assertSame('name', $csvField->getInputName());
+        self::assertSame(InputTypeEnum::AUTO, $csvField->getInputType());
+    }
+
+    public function testGetPosition(): void
+    {
+        $dataMock = self::createMock(DataInterface::class);
+        $csvField = new CsvField('name', 1, $dataMock);
+        self::assertSame(1, $csvField->getPosition());
     }
 }

@@ -76,6 +76,11 @@ abstract class DataAbstract implements \Mazarini\BatchBundle\Contract\DataInterf
 
     abstract public function setAsStringOrNull(?string $value): static;
 
+    public function getType(): TypeEnum
+    {
+        return $this->type;
+    }
+
     // Public methods - interface order
     public function getRawValue(): string
     {

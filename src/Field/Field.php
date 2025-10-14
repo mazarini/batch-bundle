@@ -24,12 +24,17 @@ namespace Mazarini\BatchBundle\Field;
 
 use Mazarini\BatchBundle\Contract\DataInterface;
 use Mazarini\BatchBundle\Contract\FieldInterface;
+use Mazarini\BatchBundle\Enum\InputTypeEnum;
+use Mazarini\BatchBundle\Enum\TypeEnum;
 
 /**
  * @internal This class is internal to the BatchBundle
  */
 class Field implements FieldInterface
 {
+    private string $inputName;
+    private InputTypeEnum $inputType;
+
     /**
      * Field constructor.
      *
@@ -38,8 +43,12 @@ class Field implements FieldInterface
      */
     public function __construct(
         private string $name,
+        ?string $inputName = null,
+        ?InputTypeEnum $inputType = null,
         private ?DataInterface $data = null
     ) {
+        $this->inputName = $inputName ?? $this->name;
+        $this->inputType = $inputType ?? InputTypeEnum::AUTO;
     }
 
     /**
@@ -96,5 +105,81 @@ class Field implements FieldInterface
         }
 
         return $this;
+    }
+
+    public function getInputName(): string
+    {
+        return $this->inputName;
+    }
+
+    public function getInputType(): InputTypeEnum
+    {
+        return $this->inputType;
+    }
+
+    /**
+     * Sets the value of the field's Data object based on the input Data and input type.
+     *
+     * @param DataInterface $inputData the input Data object
+     *
+     * @throws \RuntimeException         if the field's Data object is not configured
+     * @throws \InvalidArgumentException if the input type is unsupported
+     */
+    public function setValue(DataInterface $inputData): static
+    {
+        $outputData = $this->getData();
+
+        switch (true) {
+            case InputTypeEnum::RAW === $this->inputType:
+                // Raw input, transfer raw value
+                $outputData->setRawValue($inputData->getRawValue());
+                break;
+            case $this->byValue($inputData, $outputData): // InputTypeEnum::VALUE
+                break;
+            case InputTypeEnum::CAST === $this->inputType && $inputData->isNull():
+                $outputData->setNull();
+                break;
+            case InputTypeEnum::CAST === $this->inputType:
+                $outputData->setRawValue($inputData->getRawValue());
+                break;
+            case InputTypeEnum::MANUAL === $this->inputType:
+                // Manual input, value is set externally, no action needed here.
+                break;
+            case InputTypeEnum::AUTO === $this->inputType && $inputData === $outputData:
+                // Automatic input, value is expected to be already set or handled upstream, no action needed here.
+                break;
+            default:
+                throw new \InvalidArgumentException(\sprintf('Unsupported input type "%s" for field "%s".', $this->inputType->value, $this->getName()));
+        }
+
+        return $this;
+    }
+
+    private function byValue(DataInterface $inputData, DataInterface $outputData): bool
+    {
+        if (InputTypeEnum::VALUE !== $this->inputType) {
+            return false;
+        }
+        switch ($outputData->getType()) {
+            case TypeEnum::DATE_TIME:
+                $outputData->setAsDateTimeOrNull($inputData->getAsDateTimeOrNull());
+                break;
+            case TypeEnum::STRING:
+                $outputData->setAsStringOrNull($inputData->getAsStringOrNull());
+                break;
+            case TypeEnum::INTEGER:
+                $outputData->setAsIntegerOrNull($inputData->getAsIntegerOrNull());
+                break;
+            case TypeEnum::DECIMAL:
+                $outputData->setAsDecimalOrNull($inputData->getAsDecimalOrNull());
+                break;
+            case TypeEnum::BOOLEAN:
+                $outputData->setAsBooleanOrNull($inputData->getAsBooleanOrNull());
+                break;
+            default:
+                return false;
+        }
+
+        return true;
     }
 }

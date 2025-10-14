@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace Mazarini\BatchBundle\Field;
 
 use Mazarini\BatchBundle\Contract\DataInterface;
+use Mazarini\BatchBundle\Enum\InputTypeEnum;
 
 class FixedField extends Field
 {
@@ -33,7 +34,8 @@ class FixedField extends Field
         string $name,
         ?DataInterface $data = null
     ) {
-        parent::__construct($name, $data);
+        $inputType = $data === null ? InputTypeEnum::AUTO : InputTypeEnum::RAW;
+        parent::__construct($name, $name, $inputType, $data);
     }
 
     public function getStartPosition(): int
