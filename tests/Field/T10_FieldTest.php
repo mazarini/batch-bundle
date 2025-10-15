@@ -111,7 +111,7 @@ class T10_FieldTest extends TestCase
 
     public static function constructProvider(): \Iterator
     {
-        yield 'full params' => ['name', 'inputName', InputTypeEnum::MANUAL, new StringData()->setAsString('value'),
+        yield 'full params' => ['name', 'inputName', InputTypeEnum::MANUAL, (new StringData())->setAsString('value'),
             'name', 'inputName', InputTypeEnum::MANUAL, true,
         ];
         yield 'missing data value' => ['name', 'inputName', InputTypeEnum::MANUAL, new StringData(),
